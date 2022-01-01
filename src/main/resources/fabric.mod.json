@@ -1,0 +1,32 @@
+{
+    "schemaVersion": 1,
+    "id": "quick-travel",
+    "version": "${version}",
+
+    "name": "Quick Travel",
+    "description": "Simple balanced teleport commands (/spawn, /home, /tpa)",
+    "authors": [
+        "Bohush"
+    ],
+    "contact": {
+        "homepage": "https://bohush.dev/",
+        "issues": "https://github.com/JanBohunovsky/quick-travel/issues",
+        "sources": "https://github.com/JanBohunovsky/quick-travel"
+    },
+
+    "license": "MIT",
+    "icon": "assets/quick-travel/icon.png",
+
+    "environment": "server",
+    "entrypoints": {
+        "main": [
+            "dev.bohush.quicktravel.QuickTravel"
+        ]
+    },
+
+    "depends": {
+        "fabricloader": ">=0.12.12",
+        "fabric": "*",
+        "minecraft": "1.18.1"
+    }
+}
