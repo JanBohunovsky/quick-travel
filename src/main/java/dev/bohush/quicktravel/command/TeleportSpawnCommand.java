@@ -28,13 +28,13 @@ public class TeleportSpawnCommand {
             throw new SimpleCommandExceptionType(TeleportUtil.ERROR_INVALID_DIMENSION).create();
         }
 
-        if (!TeleportUtil.canTeleport(world, player, source.getPosition())) {
+        if (!TeleportUtil.canTeleport(world, player)) {
             throw new SimpleCommandExceptionType(TeleportUtil.ERROR_TOO_FAR_AWAY).create();
         }
 
         var spawnPos = world.getSpawnPos();
         var targetPosition = new Vec3d(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5);
-        TeleportUtil.teleportPlayer(world, player, source.getPosition(), targetPosition);
+        TeleportUtil.teleportPlayer(world, player, targetPosition);
 
         return Command.SINGLE_SUCCESS;
     }

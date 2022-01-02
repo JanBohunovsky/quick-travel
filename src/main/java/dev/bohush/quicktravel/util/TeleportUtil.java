@@ -3,6 +3,7 @@ package dev.bohush.quicktravel.util;
 import dev.bohush.quicktravel.mixin.MinecraftServerAccessor;
 import dev.bohush.quicktravel.mixin.WorldSaveHandlerAccessor;
 import net.minecraft.block.BedBlock;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtIo;
@@ -28,12 +29,16 @@ import java.util.HashSet;
 public class TeleportUtil {
     public static final Text ERROR_INVALID_DIMENSION = new LiteralText("This command can only be used in the overworld.");
     public static final Text ERROR_TOO_FAR_AWAY = new LiteralText("You are too far away from a bed or world spawn.");
+    public static final Text ERROR_NO_BED = new LiteralText("You have no home bed or it was obstructed.");
+    public static final Text ERROR_TARGET_NO_BED = new LiteralText(" has no home bed or it was obstructed.");
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static void teleportPlayer(ServerWorld world, ServerPlayerEntity player, Vec3d from, Vec3d to) {
+    public static void teleportPlayer(ServerWorld world, ServerPlayerEntity player, Vec3d target) {
+        var from = player.getPos();
+
         // Load the chunk
-        var chunkPos = new ChunkPos(new BlockPos(to));
+        var chunkPos = new ChunkPos(new BlockPos(target));
         world.getChunkManager().addTicket(ChunkTicketType.POST_TELEPORT, chunkPos, 1, player.getId());
 
         player.stopRiding();
@@ -41,17 +46,19 @@ public class TeleportUtil {
             player.wakeUp(true, true);
         }
 
-        player.networkHandler.requestTeleport(to.getX(), to.getY(), to.getZ(), 0, 0);
+        player.networkHandler.requestTeleport(target.getX(), target.getY(), target.getZ(), 0, 0);
         player.setVelocity(Vec3d.ZERO);
 
-        spawnParticles(world, from, to);
-        playSound(world, from, to);
+        spawnParticles(world, from, target);
+        playSound(world, from, target);
     }
 
-    public static boolean canTeleport(ServerWorld world, ServerPlayerEntity player, Vec3d from) {
+    public static boolean canTeleport(ServerWorld world, ServerPlayerEntity player) {
         if (world.getRegistryKey() != World.OVERWORLD) {
             return false;
         }
+
+        var from = player.getPos();
 
         // 1. Check world spawn and the player's bed
         if (isNearby(from, world.getSpawnPos())) {
@@ -100,6 +107,17 @@ public class TeleportUtil {
             return false;
         }
         return targetPos.isWithinDistance(playerPos, 25);
+    }
+
+    @Nullable
+    public static Vec3d getBedWakeUpPosition(ServerWorld world, ServerPlayerEntity player) {
+        var spawnPos = player.getSpawnPointPosition();
+        if (spawnPos == null) {
+            return null;
+        }
+
+        return PlayerEntity.findRespawnPosition(world, spawnPos, player.getSpawnAngle(), false, true)
+            .orElse(null);
     }
 
     @Nullable

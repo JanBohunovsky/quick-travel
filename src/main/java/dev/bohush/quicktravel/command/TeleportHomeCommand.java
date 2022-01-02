@@ -6,14 +6,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import dev.bohush.quicktravel.util.TeleportUtil;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -33,28 +27,17 @@ public class TeleportHomeCommand {
             throw new SimpleCommandExceptionType(TeleportUtil.ERROR_INVALID_DIMENSION).create();
         }
 
-        if (!TeleportUtil.canTeleport(world, player, source.getPosition())) {
+        if (!TeleportUtil.canTeleport(world, player)) {
             throw new SimpleCommandExceptionType(TeleportUtil.ERROR_TOO_FAR_AWAY).create();
         }
 
-        var targetPosition = getTargetPosition(player, world);
+        var targetPosition = TeleportUtil.getBedWakeUpPosition(world, player);
         if (targetPosition == null) {
-            throw new SimpleCommandExceptionType(new LiteralText("You have no home bed or it was obstructed.")).create();
+            throw new SimpleCommandExceptionType(TeleportUtil.ERROR_NO_BED).create();
         }
 
-        TeleportUtil.teleportPlayer(world, player, source.getPosition(), targetPosition);
+        TeleportUtil.teleportPlayer(world, player, targetPosition);
 
         return Command.SINGLE_SUCCESS;
-    }
-
-    @Nullable
-    private static Vec3d getTargetPosition(ServerPlayerEntity player, ServerWorld world) {
-        var spawnPos = player.getSpawnPointPosition();
-        if (spawnPos == null) {
-            return null;
-        }
-
-        return PlayerEntity.findRespawnPosition(world, spawnPos, player.getSpawnAngle(), false, true)
-            .orElse(null);
     }
 }
