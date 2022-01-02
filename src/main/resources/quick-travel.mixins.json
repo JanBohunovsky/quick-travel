@@ -1,0 +1,13 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "dev.bohush.quicktravel.mixin",
+    "compatibilityLevel": "JAVA_16",
+    "mixins": [
+        "MinecraftServerAccessor",
+        "WorldSaveHandlerAccessor"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

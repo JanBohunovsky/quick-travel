@@ -1,11 +1,12 @@
 package dev.bohush.quicktravel;
 
 import dev.bohush.quicktravel.command.ModCommands;
-import net.fabricmc.api.ModInitializer;
+import net.fabricmc.api.DedicatedServerModInitializer;
 
-public class QuickTravel implements ModInitializer {
+
+public class QuickTravel implements DedicatedServerModInitializer {
     @Override
-    public void onInitialize() {
+    public void onInitializeServer() {
         ModCommands.registerCommands();
     }
 }

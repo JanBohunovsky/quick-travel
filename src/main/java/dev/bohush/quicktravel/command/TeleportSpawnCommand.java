@@ -6,25 +6,20 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import dev.bohush.quicktravel.util.TeleportUtil;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
-public class TeleportHomeCommand {
+public class TeleportSpawnCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         dispatcher.register(
-            literal("home").executes(TeleportHomeCommand::teleportHome)
+            literal("spawn").executes(TeleportSpawnCommand::teleportToSpawn)
         );
     }
 
-    private static int teleportHome(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int teleportToSpawn(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var source = context.getSource();
         var player = source.getPlayer();
         var world = source.getWorld();
@@ -37,24 +32,10 @@ public class TeleportHomeCommand {
             throw new SimpleCommandExceptionType(TeleportUtil.ERROR_TOO_FAR_AWAY).create();
         }
 
-        var targetPosition = getTargetPosition(player, world);
-        if (targetPosition == null) {
-            throw new SimpleCommandExceptionType(new LiteralText("You have no home bed or it was obstructed.")).create();
-        }
-
+        var spawnPos = world.getSpawnPos();
+        var targetPosition = new Vec3d(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5);
         TeleportUtil.teleportPlayer(world, player, source.getPosition(), targetPosition);
 
         return Command.SINGLE_SUCCESS;
-    }
-
-    @Nullable
-    private static Vec3d getTargetPosition(ServerPlayerEntity player, ServerWorld world) {
-        var spawnPos = player.getSpawnPointPosition();
-        if (spawnPos == null) {
-            return null;
-        }
-
-        return PlayerEntity.findRespawnPosition(world, spawnPos, player.getSpawnAngle(), false, true)
-            .orElse(null);
     }
 }

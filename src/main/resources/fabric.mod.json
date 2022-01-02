@@ -19,10 +19,13 @@
 
     "environment": "server",
     "entrypoints": {
-        "main": [
+        "server": [
             "dev.bohush.quicktravel.QuickTravel"
         ]
     },
+    "mixins": [
+        "quick-travel.mixins.json"
+    ],
 
     "depends": {
         "fabricloader": ">=0.12.12",
