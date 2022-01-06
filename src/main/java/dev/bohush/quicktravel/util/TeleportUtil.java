@@ -127,7 +127,8 @@ public class TeleportUtil {
             return null;
         }
 
-        if (world.getBlockState(spawnPos).getBlock() instanceof BedBlock) {
+        var chunkPos = new ChunkPos(spawnPos);
+        if (world.isChunkLoaded(chunkPos.toLong()) && world.getBlockState(spawnPos).getBlock() instanceof BedBlock) {
             return spawnPos;
         }
 
@@ -155,7 +156,9 @@ public class TeleportUtil {
         }
 
         var spawnPos = new BlockPos(nbt.getInt("SpawnX"), nbt.getInt("SpawnY"), nbt.getInt("SpawnZ"));
-        if (world.getBlockState(spawnPos).getBlock() instanceof BedBlock) {
+        var chunkPos = new ChunkPos(spawnPos);
+
+        if (world.isChunkLoaded(chunkPos.toLong()) && world.getBlockState(spawnPos).getBlock() instanceof BedBlock) {
             return spawnPos;
         }
 
